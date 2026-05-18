@@ -52,6 +52,21 @@ const RECONNECT_DELAY_MS = 5000;  // Jeda reconnect (ms)
 const MAKS_BARIS_LOG     = 100;   // Maks baris log MQTT
 ```
 
+### Contoh konfigurasi di Arduino IDE
+contoh file pada  **`smartcane-ino/smartcane-ino.ino`**:
+```js
+const char* alamatBroker   = "xxxx.s1.eu.hivemq.cloud"; // Ganti dengan broker HiveMQ
+const int   portBroker     = 8883;                       // Port SSL HiveMQ Cloud
+const char* usernameMQTT   = "USERNAME_HIVEMQ";
+const char* passwordMQTT   = "PASSWORD_HIVEMQ";
+const char* idPerangkat    = "smart-stick-001";          // ID unik perangkat
+
+const char* topikStatus    = "smartstick/status";    // Status koneksi perangkat
+const char* topikKondisi   = "smartstick/kondisi";   // Kondisi/state saat ini
+const char* topikGPS       = "smartstick/gps";       // Data lokasi GPS
+const char* topikCariTongkat = "smartstick/cari";    // Perintah dari website: minta lokasi sekarang
+```
+
 ---
 
 ## Urutan Pemuatan Script
@@ -63,3 +78,4 @@ Script di `index.html` dimuat dalam urutan ini (penting!):
 3. `ui.js` — fungsi UI (bergantung pada config)
 4. `map.js` — fungsi peta (bergantung pada config & ui)
 5. `mqtt.js` — koneksi MQTT (bergantung pada semua di atas)
+6. `smartcane-ino/smartcane-ino.ino` - Contoh konfigurasi pada Arduino IDE
