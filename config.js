@@ -12,6 +12,7 @@ const TOPIK_STATUS   = "smartstick/status";
 const TOPIK_KONDISI  = "smartstick/kondisi";
 const TOPIK_GPS      = "smartstick/gps";
 const TOPIK_CARI     = "smartstick/cari";
+const TOPIK_SENSOR = "smartstick/sensor";
 
 // ── PENGATURAN PETA (Leaflet / OpenStreetMap)
 const PETA_LAT_AWAL  = -3.7738132;    // Koordinat awal peta (latitude)

@@ -1,4 +1,3 @@
-
 let clientMQTT = null;
 
 // ── INISIALISASI KONEKSI
@@ -29,7 +28,8 @@ function hubungkanMQTT() {
       clientMQTT.subscribe(TOPIK_STATUS);
       clientMQTT.subscribe(TOPIK_KONDISI);
       clientMQTT.subscribe(TOPIK_GPS);
-      tambahLog('INFO', `Subscribe ke: ${TOPIK_STATUS}, ${TOPIK_KONDISI}, ${TOPIK_GPS}`);
+      clientMQTT.subscribe(TOPIK_SENSOR); // Subscribe data sensor mentah
+      tambahLog('INFO', `Subscribe ke: ${TOPIK_STATUS}, ${TOPIK_KONDISI}, ${TOPIK_GPS}, ${TOPIK_SENSOR}`);
     },
     onFailure: function (err) {
       tambahLog('ERROR', `Gagal terhubung: ${err.errorMessage}`);
@@ -41,41 +41,49 @@ function hubungkanMQTT() {
 
 // ── PROSES PESAN MASUK
 function prosesDataMasuk(topik, isi) {
-  tambahLog('INFO', `[${topik}] → ${isi}`);
 
-  // Status perangkat (online / offline dari ESP32)
+  // ── Status perangkat
   if (topik === TOPIK_STATUS) {
-    if (isi === 'online') {
-      updateUIKoneksi('online');
-      tambahLog('SUKSES', 'Perangkat ESP32 terhubung (online).');
-    } else {
-      updateUIKoneksi('offline');
-      tambahLog('PERINGATAN', 'Perangkat ESP32 terputus (offline).');
-    }
+    tambahLog(isi === 'online' ? 'SUKSES' : 'PERINGATAN',
+      isi === 'online' ? 'Perangkat ESP32 terhubung (online).' : 'Perangkat ESP32 terputus (offline).');
+    updateUIKoneksi(isi === 'online' ? 'online' : 'offline');
     return;
   }
 
-  // Kondisi sensor
+  // ── Kondisi sensor (state tongkat)
   if (topik === TOPIK_KONDISI) {
     try {
       const data = JSON.parse(isi);
       updateUIKondisi(data.kondisi);
+      tambahLog('INFO', `Kondisi: ${data.kondisi}`);
     } catch (e) {
       tambahLog('ERROR', 'Gagal parse data kondisi.');
     }
     return;
   }
 
-  // Data GPS
+  // ── Data sensor mentah (jarak depan, bawah, air)
+  // Format: {"depan":175,"bawah":25,"air":0}
+  if (topik === TOPIK_SENSOR) {
+    try {
+      const data = JSON.parse(isi);
+      updateUIDataSensor(data.depan, data.bawah, data.air);
+      // Tidak tambahLog di sini karena dikirim tiap 500ms — log akan banjir
+    } catch (e) {
+      tambahLog('ERROR', 'Gagal parse data sensor.');
+    }
+    return;
+  }
+
+  // ── Data GPS
   if (topik === TOPIK_GPS) {
     try {
       const data = JSON.parse(isi);
 
       if (data.error || data.lat === 0) {
         tambahLog('PERINGATAN', 'GPS belum fix / sinyal lemah.');
-        document.getElementById('nilaiLokasi').textContent = 'GPS belum fix';
+        document.getElementById('nilaiLokasi').textContent    = 'GPS belum fix';
         document.getElementById('subWaktuLokasi').textContent = 'Sinyal lemah';
-
         if (sedangCari) selesaiCari(false);
         return;
       }
@@ -84,14 +92,12 @@ function prosesDataMasuk(topik, isi) {
       lngTerakhir = data.lng;
 
       updateMarkerPeta(data.lat, data.lng);
-
       document.getElementById('nilaiLokasi').textContent =
         `${data.lat.toFixed(5)}, ${data.lng.toFixed(5)}`;
       document.getElementById('subWaktuLokasi').textContent =
         'Diperbarui: ' + formatWaktu(new Date());
 
       tambahLog('SUKSES', `GPS diterima: ${data.lat.toFixed(6)}, ${data.lng.toFixed(6)} (${data.alasan})`);
-
       if (sedangCari) selesaiCari(true);
 
     } catch (e) {
@@ -110,7 +116,7 @@ function kirimPerintahCari() {
   tambahLog('INFO', 'Perintah "cari tongkat" dikirim ke ESP32.');
 }
 
-// ── CEK KONEKSI SEBELUM KIRIM
+// ── CEK KONEKSI
 function mqttTerhubung() {
   return clientMQTT && clientMQTT.isConnected();
 }

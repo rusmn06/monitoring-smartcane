@@ -5,25 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SmartCane – Tongkat Cerdas Tunanetra</title>
 
-  <!-- ── CDN EKSTERNAL ── -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-
-  <!-- ── STYLE LOKAL ── -->
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
 
-<!-- Navbar -->
+<!-- ── NAVBAR ── -->
 <nav class="navbar-smartcane">
   <div class="container-utama py-0">
     <div class="d-flex align-items-center justify-content-between">
       <div class="d-flex align-items-center gap-3">
-        <div class="brand-logo">
-          <i class="bi bi-broadcast"></i>
-        </div>
+        <div class="brand-logo"><i class="bi bi-broadcast"></i></div>
         <span class="brand-nama">SmartCane</span>
       </div>
       <div id="badgeKoneksiNav" class="badge-koneksi connecting">
@@ -34,10 +29,10 @@
   </div>
 </nav>
 
-<!-- Konten Utama -->
+<!-- ── KONTEN UTAMA ── -->
 <div class="container-utama">
 
-  <!-- Peta -->
+  <!-- PETA -->
   <div class="card-smartcane mb-3 fade-up">
     <div style="position:relative;">
       <div class="label-live">
@@ -49,22 +44,19 @@
       </div>
       <div id="peta"></div>
     </div>
-
-    <!-- Badge kondisi sensor -->
+    <!-- Badge kondisi -->
     <div class="px-3 pb-3 pt-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
-      <div class="d-flex align-items-center gap-2">
-        <span class="badge-kondisi kondisi-UNKNOWN" id="badgeKondisi">
-          <i class="bi bi-question-circle"></i>
-          <span id="teksKondisi">Menunggu data...</span>
-        </span>
-      </div>
-      <div class="text-end" style="font-size:0.75rem; color:var(--teks-abu);">
+      <span class="badge-kondisi kondisi-UNKNOWN" id="badgeKondisi">
+        <i class="bi bi-question-circle"></i>
+        <span id="teksKondisi">Menunggu data...</span>
+      </span>
+      <div style="font-size:0.75rem; color:var(--teks-abu);">
         Kondisi terdeteksi · <span id="waktuKondisi">–</span>
       </div>
     </div>
   </div>
 
-  <!-- ── TOMBOL CARI TONGKAT ── -->
+  <!-- TOMBOL CARI TONGKAT -->
   <div class="mb-3 fade-up delay-1">
     <button class="tombol-cari" id="tombolCari" onclick="cariTongkat()">
       <div class="ikon-cari"><i class="bi bi-search"></i></div>
@@ -75,10 +67,8 @@
     </div>
   </div>
 
-  <!-- ── KARTU INFO BAWAH ── -->
-  <div class="row g-3 mb-4 fade-up delay-2">
-
-    <!-- Status Perangkat -->
+  <!-- KARTU INFO: STATUS & LOKASI -->
+  <div class="row g-3 mb-3 fade-up delay-2">
     <div class="col-12 col-sm-6">
       <div class="kartu-info">
         <div class="d-flex align-items-center gap-3">
@@ -88,13 +78,11 @@
           <div>
             <div class="label-kartu">Status Perangkat</div>
             <div class="nilai-kartu" id="nilaiStatusPerangkat" style="color:var(--abu);">Menghubungkan...</div>
-            <div class="sub-kartu" id="subStatusPerangkat">Menyambungkan ke broker MQTT</div>
+            <div class="sub-kartu"   id="subStatusPerangkat">Menyambungkan ke broker MQTT</div>
           </div>
         </div>
       </div>
     </div>
-
-    <!-- Lokasi Terakhir -->
     <div class="col-12 col-sm-6">
       <div class="kartu-info">
         <div class="d-flex align-items-center gap-3">
@@ -104,15 +92,70 @@
           <div>
             <div class="label-kartu">Lokasi Terakhir</div>
             <div class="nilai-kartu" id="nilaiLokasi">Menunggu GPS...</div>
-            <div class="sub-kartu" id="subWaktuLokasi">–</div>
+            <div class="sub-kartu"   id="subWaktuLokasi">–</div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ── LOG MQTT ── -->
-  <div class="fade-up delay-3">
+  <!-- ── KARTU DATA SENSOR MENTAH (BARU) ── -->
+  <div class="fade-up delay-3 mb-4">
+    <div class="d-flex align-items-center justify-content-between mb-2">
+      <div class="judul-seksi mb-0">Data Sensor Real-time</div>
+      <span style="font-size:0.72rem; color:var(--teks-abu);" id="waktuDataSensor">–</span>
+    </div>
+    <div class="card-smartcane">
+      <div class="row g-0">
+
+        <!-- Jarak Depan (HY-SR05) -->
+        <div class="col-12 col-md-4 p-3" style="border-bottom: 1px solid var(--border);" id="kolom-depan">
+          <div class="d-flex align-items-center gap-3">
+            <div class="ikon-info-wrap biru" style="flex-shrink:0;">
+              <i class="bi bi-arrows-expand-vertical"></i>
+            </div>
+            <div>
+              <div class="label-kartu">Jarak Depan</div>
+              <div class="nilai-kartu" id="nilaiJarakDepan">–</div>
+              <div class="sub-kartu">Sensor HY-SR05</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Jarak Bawah (JSN-SR04T) -->
+        <div class="col-12 col-md-4 p-3" style="border-bottom: 1px solid var(--border);" id="kolom-bawah">
+          <div class="d-flex align-items-center gap-3">
+            <div class="ikon-info-wrap biru" style="flex-shrink:0;">
+              <i class="bi bi-arrow-down-circle"></i>
+            </div>
+            <div>
+              <div class="label-kartu">Jarak Bawah</div>
+              <div class="nilai-kartu" id="nilaiJarakBawah">–</div>
+              <div class="sub-kartu">Sensor JSN-SR04T</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sensor Air -->
+        <div class="col-12 col-md-4 p-3" id="kolom-air">
+          <div class="d-flex align-items-center gap-3">
+            <div class="ikon-info-wrap biru" style="flex-shrink:0;">
+              <i class="bi bi-droplet-half"></i>
+            </div>
+            <div>
+              <div class="label-kartu">Level Air (ADC)</div>
+              <div class="nilai-kartu" id="nilaiAir">–</div>
+              <div class="sub-kartu">Water Level Sensor</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- LOG MQTT -->
+  <div class="fade-up delay-4">
     <div class="d-flex align-items-center justify-content-between mb-2">
       <div class="judul-seksi mb-0">Log Komunikasi MQTT</div>
       <button onclick="bersihkanLog()"
@@ -132,18 +175,14 @@
 
 </div><!-- /container-utama -->
 
-
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 <script src="config.js"></script>
 <script src="ui.js"></script>
 <script src="map.js"></script>
 <script src="mqtt.js"></script>
-
 <script>
-  // ── TITIK MASUK APLIKASI ──
   window.addEventListener('DOMContentLoaded', function () {
     inisialisasiPeta();
     hubungkanMQTT();

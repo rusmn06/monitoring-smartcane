@@ -1,6 +1,6 @@
 let sedangCari = false;
 
-// TOMBOL CARI TONGKAT
+// ── TOMBOL CARI TONGKAT
 function cariTongkat() {
   if (!mqttTerhubung()) {
     tambahLog('ERROR', 'Tidak bisa kirim: MQTT belum terhubung.');
@@ -9,17 +9,16 @@ function cariTongkat() {
   if (sedangCari) return;
 
   sedangCari = true;
-  const tombol      = document.getElementById('tombolCari');
-  const teksTombol  = document.getElementById('teksTombolCari');
-  const statusCari  = document.getElementById('statusCari');
+  const tombol     = document.getElementById('tombolCari');
+  const teksTombol = document.getElementById('teksTombolCari');
+  const statusCari = document.getElementById('statusCari');
 
-  tombol.disabled           = true;
-  teksTombol.textContent    = 'Meminta lokasi dari tongkat...';
-  statusCari.textContent    = 'Menunggu respons GPS dari ESP32...';
+  tombol.disabled        = true;
+  teksTombol.textContent = 'Meminta lokasi dari tongkat...';
+  statusCari.textContent = 'Menunggu respons GPS dari ESP32...';
 
   kirimPerintahCari();
 
-  // Timeout jika tidak ada respons
   setTimeout(function () {
     if (sedangCari) selesaiCari(false);
   }, TIMEOUT_CARI_MS);
@@ -44,11 +43,11 @@ function selesaiCari(berhasil) {
   }
 }
 
-// UPDATE STATUS KONEKSI
+// ── UPDATE STATUS KONEKSI
 function updateUIKoneksi(status) {
-  const badgeNav  = document.getElementById('badgeKoneksiNav');
-  const titikNav  = badgeNav.querySelector('.titik-status');
-  const teksNav   = document.getElementById('teksKoneksiNav');
+  const badgeNav    = document.getElementById('badgeKoneksiNav');
+  const titikNav    = badgeNav.querySelector('.titik-status');
+  const teksNav     = document.getElementById('teksKoneksiNav');
   const nilaiStatus = document.getElementById('nilaiStatusPerangkat');
   const subStatus   = document.getElementById('subStatusPerangkat');
   const ikonStatus  = document.getElementById('ikonStatusPerangkat');
@@ -56,7 +55,7 @@ function updateUIKoneksi(status) {
   badgeNav.className = 'badge-koneksi';
   titikNav.className = 'titik-status';
 
-  const tabelStatus = {
+  const tabel = {
     online: {
       badge: 'online', titik: 'online',
       teksNav: 'Terhubung',
@@ -83,19 +82,18 @@ function updateUIKoneksi(status) {
     },
   };
 
-  const s = tabelStatus[status] || tabelStatus.connecting;
-
+  const s = tabel[status] || tabel.connecting;
   badgeNav.classList.add(s.badge);
   titikNav.classList.add(s.titik);
-  teksNav.textContent          = s.teksNav;
-  nilaiStatus.textContent      = s.nilaiTeks;
-  nilaiStatus.style.color      = s.nilaiWarna;
-  subStatus.textContent        = s.subTeks;
-  ikonStatus.className         = s.ikonKelas;
-  ikonStatus.innerHTML         = s.ikonHTML;
+  teksNav.textContent       = s.teksNav;
+  nilaiStatus.textContent   = s.nilaiTeks;
+  nilaiStatus.style.color   = s.nilaiWarna;
+  subStatus.textContent     = s.subTeks;
+  ikonStatus.className      = s.ikonKelas;
+  ikonStatus.innerHTML      = s.ikonHTML;
 }
 
-// UPDATE BADGE KONDISI SENSOR
+// ── UPDATE BADGE KONDISI SENSOR
 function updateUIKondisi(kondisi) {
   const badge = document.getElementById('badgeKondisi');
   const teks  = document.getElementById('teksKondisi');
@@ -104,21 +102,57 @@ function updateUIKondisi(kondisi) {
   badge.className = 'badge-kondisi';
 
   const daftarKondisi = {
-    'NORMAL':        { label: 'Normal – Jalur Aman',       ikon: 'bi-check-circle-fill',       kelas: 'kondisi-NORMAL' },
-    'OBS_NEAR':      { label: 'Waspada – Ada Halangan',    ikon: 'bi-exclamation-triangle-fill', kelas: 'kondisi-OBS_NEAR' },
-    'WATER_WARN':    { label: 'Hati-hati – Ada Genangan',  ikon: 'bi-droplet-fill',              kelas: 'kondisi-WATER_WARN' },
-    'WATER_DANGER':  { label: 'Bahaya – Genangan Tinggi',  ikon: 'bi-exclamation-octagon-fill',  kelas: 'kondisi-WATER_DANGER' },
-    'OBS_CRITICAL':  { label: 'Kritis – Halangan Dekat!',  ikon: 'bi-x-octagon-fill',            kelas: 'kondisi-OBS_CRITICAL' },
+    'NORMAL':            { label: 'Normal – Jalur Aman',             ikon: 'bi-check-circle-fill',        kelas: 'kondisi-NORMAL' },
+    'OBS_NEAR':          { label: 'Waspada – Ada Halangan Depan',    ikon: 'bi-exclamation-triangle-fill', kelas: 'kondisi-OBS_NEAR' },
+    'WATER_WARN':        { label: 'Hati-hati – Ada Genangan',        ikon: 'bi-droplet-fill',              kelas: 'kondisi-WATER_WARN' },
+    'WATER_DANGER':      { label: 'Bahaya – Genangan Tinggi',        ikon: 'bi-exclamation-octagon-fill',  kelas: 'kondisi-WATER_DANGER' },
+    'OBS_CRITICAL_HY':  { label: 'Kritis – Halangan Sangat Dekat!', ikon: 'bi-x-octagon-fill',            kelas: 'kondisi-OBS_CRITICAL' },
+    'OBS_CRITICAL_JSN': { label: 'Kritis – Bahaya Lantai/Tangga!',  ikon: 'bi-exclamation-diamond-fill',  kelas: 'kondisi-OBS_CRITICAL' },
   };
 
   const info = daftarKondisi[kondisi] || { label: kondisi, ikon: 'bi-question', kelas: 'kondisi-UNKNOWN' };
-
   badge.classList.add(info.kelas);
-  teks.innerHTML  = `<i class="bi ${info.ikon} me-1"></i>${info.label}`;
+  teks.innerHTML    = `<i class="bi ${info.ikon} me-1"></i>${info.label}`;
   waktu.textContent = formatWaktu(new Date());
 }
 
-// LOG KOMUNIKASI MQTT
+// ── UPDATE KARTU DATA SENSOR MENTAH
+// Dipanggil setiap data baru dari topik smartstick/sensor masuk
+function updateUIDataSensor(depan, bawah, air) {
+  // Jarak depan (HY-SR05)
+  const elDepan = document.getElementById('nilaiJarakDepan');
+  if (elDepan) {
+    elDepan.textContent = (depan === -1 || depan === null)
+      ? 'Tidak terbaca'
+      : depan + ' cm';
+  }
+
+  // Jarak bawah (JSN-SR04T)
+  const elBawah = document.getElementById('nilaiJarakBawah');
+  if (elBawah) {
+    elBawah.textContent = (bawah === -1 || bawah === null)
+      ? 'Tidak terbaca'
+      : bawah + ' cm';
+  }
+
+  // Nilai sensor air (ADC 0-4095)
+  const elAir = document.getElementById('nilaiAir');
+  if (elAir) {
+    let labelAir = '';
+    if      (air <= 1500) labelAir = `${air}  (Kering)`;
+    else if (air <= 2500) labelAir = `${air}  (Genangan ringan)`;
+    else                  labelAir = `${air}  (Genangan berbahaya!)`;
+    elAir.textContent = labelAir;
+  }
+
+  // Waktu update terakhir
+  const elWaktu = document.getElementById('waktuDataSensor');
+  if (elWaktu) {
+    elWaktu.textContent = 'Update: ' + new Date().toLocaleTimeString('id-ID');
+  }
+}
+
+// ── LOG KOMUNIKASI MQTT
 function tambahLog(tipe, pesan) {
   const kotak = document.getElementById('kotakLog');
   const waktu = new Date().toLocaleTimeString('id-ID');
@@ -140,7 +174,6 @@ function tambahLog(tipe, pesan) {
   kotak.appendChild(baris);
   kotak.scrollTop = kotak.scrollHeight;
 
-  // Batasi jumlah baris log
   const semua = kotak.querySelectorAll('.log-baris');
   if (semua.length > MAKS_BARIS_LOG) semua[0].remove();
 }
@@ -150,7 +183,7 @@ function bersihkanLog() {
   tambahLog('INFO', 'Log dibersihkan.');
 }
 
-// FORMAT WAKTU
+// ── FORMAT WAKTU
 function formatWaktu(tgl) {
   return tgl.toLocaleString('id-ID', {
     day: '2-digit', month: 'long', year: 'numeric',
