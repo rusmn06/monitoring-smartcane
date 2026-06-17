@@ -28,7 +28,7 @@ function hubungkanMQTT() {
       clientMQTT.subscribe(TOPIK_STATUS);
       clientMQTT.subscribe(TOPIK_KONDISI);
       clientMQTT.subscribe(TOPIK_GPS);
-      clientMQTT.subscribe(TOPIK_SENSOR); // Subscribe data sensor mentah
+      //clientMQTT.subscribe(TOPIK_SENSOR); // Subscribe data sensor mentah
       tambahLog('INFO', `Subscribe ke: ${TOPIK_STATUS}, ${TOPIK_KONDISI}, ${TOPIK_GPS}, ${TOPIK_SENSOR}`);
     },
     onFailure: function (err) {
